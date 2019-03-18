@@ -1,7 +1,10 @@
 package com.plase.utils;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,14 +23,17 @@ import com.plase.entity.ThinkTimeBean;
 public class Util {
 
 	static String filepath = "E:\\json";
+	static String  test= "E:\\a.json";
 	static String aimpath = "E:\\jsontest";
 	static String name = "test.json";
 	static String deletePath = "E:\\jsontest";
 	public static void main(String[] args) throws IOException {
 		// TODO Auto-generated method stub
-		MergeJsons(filepath, aimpath, name);
+		//MergeJsons(filepath, aimpath, name);
 		//File deletePath = new File("E:\\jsontest");
 		//deleteFile(deletePath);
+		//prettyJson(test);
+		
 	}
 	
 	
@@ -64,7 +70,7 @@ public class Util {
 		if (!file.exists()){
 			file.createNewFile();
 		}
-		String mergeJson = JSON.toJSONString(thinkTimeBeanList);//把json实体类集合转换为字符串
+		String mergeJson = JSON.toJSONString(thinkTimeBeanList,true);//把json实体类集合转换为字符串,这里加入true即格式化Json字符串
 		FileUtils.writeStringToFile(file, mergeJson, "utf-8");//把字符串写入到文件中
 	}
 	
@@ -88,5 +94,54 @@ public class Util {
 			file.delete();
 		}
 	}
+	
+	
 
+	/**
+	 * 
+	 * @param filePath 读取文件的路径
+	 * @return 返回json文件的字符串
+	 * @Description 读取一个json文件，然后字符串的形式返回。
+	 */
+	public static String readJson(String filePath) {
+		BufferedReader reader = null;
+        StringBuffer bf = new StringBuffer();
+        try{
+            FileInputStream fileInputStream = new FileInputStream(filePath);
+            InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream, "UTF-8");
+            reader = new BufferedReader(inputStreamReader);
+            String tempString = null;
+            while((tempString = reader.readLine()) != null){
+                bf.append(tempString);
+            }
+            reader.close();
+        }catch(IOException e){
+            e.printStackTrace();
+        }finally{
+            if(reader != null){
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return bf.toString();
+    }
+	
+	
+	/**
+	 * 
+	 * @param filePath 读取文件的位置绝对路径。
+	 * @throws IOException
+	 * @Description 读取一个json文件，然后一个格式化的形式打印出json文件的内容。此时格式化后的字符串写入新的json文件中也可以。
+	 */
+	public static void prettyJson(String filePath) throws IOException{
+		String str = readJson(filePath);
+		System.out.println(str);//打印读取的json文件
+		List<ThinkTimeBean> list = JSON.parseArray(str,ThinkTimeBean.class);//把json字符串转换为对象列表，因为这里的为json数组。
+		String str1 = JSON.toJSONString(list,true);//把json对象转换为字符串，并且格式化(多加一个true参数即可)
+		System.out.println(str1); //打印格式化后的字符串
+	}
 }
+
